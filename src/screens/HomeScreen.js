@@ -62,6 +62,12 @@ export default function HomeScreen ({navigation}) {
       return (
         <SafeAreaView style={styles.container}>
         <TopButtons button2='add' />
+        <TouchableOpacity 
+          style={styles.logout}
+          onPress={() => navigation.navigate('Login')}
+        >
+          <Text style={styles.logoutText}>LOGOUT</Text>
+        </TouchableOpacity>
           <Text style={styles.name}>Hi { userData.firstName }</Text>
           <Text style={styles.smallText}>What are you brewing today?</Text>
           <FlatList
@@ -69,7 +75,6 @@ export default function HomeScreen ({navigation}) {
             renderItem={renderEntries}
             keyExtractor={entry => entry._id}
           />
-          <Button title='LOGOUT' style={styles.logout} onPress={logout}></Button>
         </SafeAreaView>
       )
   }
@@ -81,6 +86,15 @@ const styles = StyleSheet.create({
     padding: 24,
     backgroundColor: LIGHT_BROWN,
     alignItems: 'center'
+  },
+  logout: {
+    padding: 5,
+    alignSelf: 'flex-start',
+    marginLeft: 40,
+    backgroundColor: MED_BROWN
+  },
+  logoutText: {
+    fontSize: 8
   },
   name: {
     fontFamily: 'PlayfairDisplay-Regular',
