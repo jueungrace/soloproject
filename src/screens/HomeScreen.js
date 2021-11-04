@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Text, View, StyleSheet, SafeAreaView, TextInput, TouchableOpacity, Button, FLatList } from 'react-native';
+import { ActivityIndicator, Text, View, StyleSheet, SafeAreaView, TextInput, TouchableOpacity, Button, FLatList } from 'react-native';
 import TopButtons from '../components/TopButtons';
 import CoffeeCard from '../components/CoffeeCard';
 import { DARK_BROWN, MED_BROWN, LIGHT_BROWN } from '../constants/style.js';
@@ -8,7 +8,7 @@ import FlatList from "react-native/Libraries/Lists/FlatList";
 
 export default function HomeScreen ({navigation}) {
   const [userData, setUserData] = useState({});
-  
+  const [isLoading, setLoading] = useState(true);
 
   useEffect(() => {
     async function getUserData() {
@@ -17,27 +17,62 @@ export default function HomeScreen ({navigation}) {
       fetch(`https://tough-impala-65.loca.lt/user?id=${userID}`)
         .then(res => res.json())
         .then(data => setUserData(data))
-        .catch(err => console.log('Error fetching user data: ', err));
+        .catch(err => console.log('Error fetching user data: ', err))
+        .finally(() => setLoading(false));
     }
     getUserData();
   }, [])
 
-  // const renderItem = (entry) => (
-  //   <CoffeeCard name={entry.name} rating='5' country='Country' region='Region' purchasedFrom='Hidden Grounds'
-  //       price='13' methods={['a', 'b']} aroma='Fruity, savory' flavor='Rich' notes='Very good' />
-  // )
+  //console.log(userData.entries);
 
-  return (
-    <SafeAreaView style={styles.container}>
-    <TopButtons button2='add' />
-      <Text style={styles.name}>Hi { userData.firstName }</Text>
-      <Text style={styles.smallText}>What are you brewing today?</Text>
-      
-      <CoffeeCard name='CoffeeName' rating='5' country='Country' region='Region' purchasedFrom='Hidden Grounds'
-        price='13' methods={['a', 'b']} aroma='Fruity, savory' flavor='Rich' notes='Very good'
-      />
-    </SafeAreaView>
-  )
+  const logout = async () => {
+    AsyncStorage.clear();
+    navigation.navigate('Login')
+  }
+
+  const renderEntries = (item) => {
+    //console.log(item);
+    return (
+      <View>
+        <CoffeeCard 
+          loved={item.item.loved}
+          name={item.item.name} 
+          rating={item.item.rating} 
+          country={item.item.country}
+          region={item.item.region} 
+          purchasedFrom={item.item.purchasedFrom}
+          price={item.item.price}  
+          methods={item.item.brewingMethods} 
+          aroma={item.item.aroma} 
+          flavor={item.item.flavorAndFinish}  
+          notes={item.item.notes}  
+          id={item.item._id}
+        />
+      </View>
+    )
+  }
+
+  if (isLoading) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <ActivityIndicator size='large' animating />
+      </SafeAreaView>
+    )
+  } else {
+      return (
+        <SafeAreaView style={styles.container}>
+        <TopButtons button2='add' />
+          <Text style={styles.name}>Hi { userData.firstName }</Text>
+          <Text style={styles.smallText}>What are you brewing today?</Text>
+          <FlatList
+            data={userData.entries}
+            renderItem={renderEntries}
+            keyExtractor={entry => entry._id}
+          />
+          <Button title='LOGOUT' style={styles.logout} onPress={logout}></Button>
+        </SafeAreaView>
+      )
+  }
 }
 
 const styles = StyleSheet.create({

@@ -35,6 +35,8 @@ export default function LoginScreen ({navigation}) {
           } catch (err) {
             console.log('Syncing error: ', err);
           }
+          onChangePassword('');
+          onChangeUsername('');
           navigation.navigate('Home');
           //Alert.alert('Login success!');
         }

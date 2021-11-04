@@ -23,7 +23,7 @@ const PORT = 3000;
 
 app.post('/signup', async (req, res, next) => {
   const { firstName, lastName, email, username, password } = req.body;
-  console.log(req.body);
+  //console.log(req.body);
   if (!firstName || !lastName || !email || !username || !password ) {
     return next({ code: 422, error: "Please fill out the entire form" });
   }
@@ -41,6 +41,25 @@ app.post('/signup', async (req, res, next) => {
   // }
 });
 
+app.post('/like', async (req, res, next) => {
+  try {
+    const { userID, loved, entryID } = req.body;
+    // console.log(userID);
+    let likedOrNo;
+    const user = await User.find({ _id: userID });
+    for (let entry of user[0]['entries']) {
+      if (entry._id == entryID) {
+        entry.loved = !entry.loved;
+        likedOrNo = entry.loved;
+        await user[0].save();
+      }
+    }
+    res.send({ message: `The liked state is ${likedOrNo}` });
+  } catch (err) {
+    res.send({error: 'Issue setting likes!'})
+  }
+})
+
 app.post('/entry', async (req, res) => {
   try {
     const { id, entry } = req.body;
@@ -56,7 +75,7 @@ app.post('/entry', async (req, res) => {
 
 app.post('/login', async (req, res, next) => {
   const { username, password } = req.body;
-  console.log(req.body);
+  //console.log(req.body);
 
   if (username == '' || password == '') {
     return next({ code: 422, error: 'Please provide both username and password' });
@@ -66,7 +85,7 @@ app.post('/login', async (req, res, next) => {
   if (!user) return next({ code: 422, error: "Invalid login!"});
 
   bcrypt.compare(password, user.password, function(err, result) {
-      console.log(result);
+      //console.log(result);
       if (err) return next({ code: 422, error: "Bcrypt err" })
       if (result == true) res.json({ code: 200, userID: user._id });
       else return next({ code: 422, error: "Wrong password!" });
