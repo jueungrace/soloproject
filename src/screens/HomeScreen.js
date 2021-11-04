@@ -33,7 +33,6 @@ export default function HomeScreen ({navigation}) {
   const renderEntries = (item) => {
     //console.log(item);
     return (
-      <View>
         <CoffeeCard 
           loved={item.item.loved}
           name={item.item.name} 
@@ -48,7 +47,6 @@ export default function HomeScreen ({navigation}) {
           notes={item.item.notes}  
           id={item.item._id}
         />
-      </View>
     )
   }
 

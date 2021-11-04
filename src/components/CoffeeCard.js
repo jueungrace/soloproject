@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Text, View, StyleSheet, TouchableOpacity, Button, Animated, FlatList } from 'react-native';
+import { Text, View, StyleSheet, TouchableOpacity, Button, FlatList, TouchableWithoutFeedback } from 'react-native';
 import TopButtons from '../components/TopButtons';
 import { DARK_BROWN, MED_BROWN, LIGHT_BROWN } from '../constants/style.js';
 import Icon from 'react-native-vector-icons/FontAwesome5';
@@ -7,9 +7,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
 export default function CoffeeCard (props) {
-  const AnimatedFlatList = Animated.createAnimatedComponent(FlatList);
   const [ liked, setLiked ] = useState(loved);
-  const [ expanded, setExpand ] = useState(false);
+  const [ selected, setSelected ] = useState(false);
 
   const { loved, name, rating, country, region, purchasedFrom, price, methods, aroma, flavor, notes, id } = props;
   // let methodList;
@@ -25,12 +24,12 @@ export default function CoffeeCard (props) {
   // }
 
   const changeLove = async () => {
-    console.log(liked);
+    //console.log(liked);
     setLiked(!liked);
     const userID = await AsyncStorage.getItem('user');
-    console.log(userID);
+    //console.log(userID);
     const body = { userID, loved: liked, entryID: id };
-    console.log(body);
+    //console.log(body);
     fetch('https://tough-impala-65.loca.lt/like', {
       method: 'POST',
       headers: {
@@ -43,23 +42,39 @@ export default function CoffeeCard (props) {
       .catch(err => console.log(err.message));
   }
 
+  const onPress = () => {
+    setSelected(!selected);
+  }
+
+  const renderDetails = () => (
+    <View>
+      <Text style={styles.info}>Rating: { rating }/5</Text>
+      <Text style={styles.info}>Country: { country }</Text>
+      <Text style={styles.info}>Region: { region }</Text>
+      <Text style={styles.info}>Purchased At: { purchasedFrom }</Text>
+      <Text style={styles.info}>Price: ${ price }</Text>
+      <Text style={styles.info}>Brewed With: { methods }</Text>
+      <Text style={styles.info}>Aroma: { aroma }</Text>
+      <Text style={styles.info}>Flavor/Finish: { flavor }</Text>
+      <Text style={styles.info}>Other Notes: { notes }</Text>
+    </View>
+  );
+
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.title}>{name}</Text>
-        <Icon name='heart' size={25} onPress={changeLove} solid={liked} underlayColor='red' color='#d496a0'/>
-      </View>
-      <View>
-        <Text style={styles.info}>Rating: { rating }/5</Text>
-        <Text style={styles.info}>Country: { country }</Text>
-        <Text style={styles.info}>Region: { region }</Text>
-        <Text style={styles.info}>Purchased At: { purchasedFrom }</Text>
-        <Text style={styles.info}>Price: ${ price }</Text>
-        <Text style={styles.info}>Brewed With: { methods }</Text>
-        <Text style={styles.info}>Aroma: { aroma }</Text>
-        <Text style={styles.info}>Flavor/Finish: { flavor }</Text>
-        <Text style={styles.info}>Other Notes: { notes }</Text>
-      </View>
+    <View 
+      style={styles.container}
+    >
+      <TouchableWithoutFeedback
+        onPress={onPress}
+      >
+        <View>
+          <View style={styles.header}>
+            <Text style={styles.title}>{name}</Text>
+            <Icon name='heart' size={25} onPress={changeLove} solid={liked} underlayColor='red' color='#d496a0'/>
+          </View>
+          { selected && renderDetails() }
+        </View>
+      </TouchableWithoutFeedback>
     </View>
   )
 }
@@ -71,7 +86,7 @@ const styles = StyleSheet.create({
     width: 310,
     padding: 20,
     marginVertical: 10,
-    justifyContent: 'center'
+    justifyContent: 'center',
   },
   header: {
     flexDirection: 'row',
